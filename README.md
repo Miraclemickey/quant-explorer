@@ -1,75 +1,48 @@
-# quant-explorer
-# Global Semiconductor Multi-Factor Quant Strategy 🌐💎
+# Global Semiconductor Multi-Factor Quant Strategy & Optimization 🌐📊
 
-![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
-![Pandas](https://img.shields.io/badge/Data-Pandas-green)
-![Status](https://img.shields.io/badge/Status-Active-success)
-![Focus](https://img.shields.io/badge/Focus-Quantitative%20Finance-orange)
+![Python](https://img.shields.io/badge/Python-3.10-blue) ![Refinitiv](https://img.shields.io/badge/Data-LSEG%20Refinitiv-orange) ![Finance](https://img.shields.io/badge/Strategy-Markowitz%20MPT-green)
 
-## 📖 Executive Summary
-This project implements a **Multi-Factor Quantitative Model** to analyze and rank global semiconductor companies across US, Hong Kong, and Taiwan markets. 
+## 📌 Executive Summary
+This project bridges **Fundamental Analysis** and **Quantitative Modeling** to construct an optimized equity portfolio within the global semiconductor supply chain (US, Taiwan, Hong Kong). 
 
-Unlike traditional fundamental analysis, this model utilizes statistical normalization (**Z-Score**) to synthesize disparate metrics—Valuation, Innovation, Quality, and Momentum—into a unified scoring system (0-100). The goal is to identify "Quality Growth" stocks that are undervalued relative to their R&D output.
+By leveraging a **3-Factor Scoring Model** (Valuation, Innovation, Momentum) and **Mean-Variance Optimization** (Markowitz), the strategy identifies high-quality assets and allocates capital to maximize the Risk-Adjusted Return (Sharpe Ratio).
 
----
+## 🛠️ Project Architecture
 
-## 🏗️ Methodology & Framework
+### 1. Data Engineering (Automated Pipeline)
+* **Source:** LSEG Workspace (Refinitiv Eikon) API.
+* **Universe:** 15 core semiconductor stocks (e.g., NVDA, TSMC, ASML, SMIC) covering Fabless, Foundry, and Equipment sectors.
+* **Normalization:** Dynamic cross-market currency conversion (HKD/TWD to USD) and LTM (Last Twelve Months) alignment.
 
-The model follows a rigorous quantitative research pipeline:
+### 2. Factor Modeling (The "Alpha" Engine)
+We constructed a composite Z-Score based on three strategic dimensions:
+* **Innovation (40%):** R&D Intensity (R&D Expense / Revenue). Captures long-term technological moats.
+* **Valuation (30%):** EV/EBITDA proxy. Identifying mispriced value relative to cash flow.
+* **Momentum (30%):** YTD Price Performance. Capturing market sentiment and trend persistence.
 
-### 1. Data Engineering (Cross-Market Normalization)
-* **Source:** Institutional financial terminal (iFind/Tonghuashun).
-* **Universe:** 15+ Core Semiconductor companies (NVDA, TSM, ASML, SMIC, etc.) covering Fabless, Foundry, and Equipment sectors.
-* **Currency Standardization:** All market capitalizations (HKD, TWD) are normalized to **USD** to ensure accurate cross-border comparison.
-* **Imputation:** Missing data points (e.g., specific quarterly reports) are handled using sector-median imputation.
+### 3. Portfolio Optimization (Risk Management)
+Instead of equal weighting, the top fundamental picks were fed into a **Markowitz Mean-Variance Optimizer**:
+* **Objective:** Maximize Sharpe Ratio.
+* **Constraint:** Individual asset cap of 40% to ensure diversification.
+* **Result:** A mathematically optimal allocation between high-growth (NVDA) and high-stability (TSMC) assets.
 
-### 2. Factor Construction
-We constructed four distinct factor dimensions to capture the "Alpha":
+## 📊 Key Results
 
-| Dimension | Weight | Key Indicators | Rationale |
-| :--- | :--- | :--- | :--- |
-| **Innovation** | **30%** | `R&D Intensity` (R&D / Revenue) | In Semi, R&D is the leading indicator of future moat. |
-| **Quality** | **30%** | `Gross Margin` + `ROIC` | Filters for companies with high pricing power and capital efficiency. |
-| **Valuation** | **20%** | `EV/EBITDA` | Preferred over P/E due to high depreciation in the sector. |
-| **Momentum** | **20%** | `YTD Return` | Captures market trend and sentiment alignment. |
+### Fundamental Ranking
+The model identified **Value & Momentum** opportunities, highlighting companies like **Micron (MU)** and **SMIC (0981.HK)** as statistically attractive relative to their peers.
 
-### 3. The Scoring Algorithm
-To combine metrics with different units (e.g., 125x P/E vs. 6% R&D), we apply **Z-Score Normalization**:
+![Ranking Chart](output/quant_ranking_chart.png)
 
-$$z_i = \frac{x_i - \mu}{\sigma}$$
+### Efficient Frontier Allocation
+The optimization algorithm suggested a diversified mix, reducing portfolio volatility compared to a single-stock holding.
 
-The final Composite Score ($S$) is calculated as:
-
-$$S = 0.3(Z_{Innovation}) + 0.3(Z_{Quality}) - 0.2(Z_{Valuation}) + 0.2(Z_{Momentum})$$
-
-*(Note: Valuation is penalized, so lower EV/EBITDA contributes positively to the score)*
-
----
-
-## 📊 Key Insights & Findings (Backtest Snapshot)
-
-Running the model on **December 2025** data revealed several market anomalies:
-
-1.  **The "R&D Alpha" Outlier:** **SMIC (0981.HK)** ranked #1 due to an exceptionally high R&D Intensity (>50%), signaling aggressive capital commitment despite geopolitical headwinds.
-2.  **Valuation Drag on Giants:** **Nvidia (NVDA)**, despite dominating Quality and Momentum, ranked mid-tier (#11) in this GARP-focused model due to its extreme valuation premium (>120x EV/EBITDA).
-3.  **The "Cycle Turn" Winner:** **Micron (MU)** ranked #2, driven by a massive Momentum reversal (+185% YTD) combined with reasonable valuation, indicating a classic memory cycle upswing.
-
-*(Visualization of the ranking)*
-![Ranking Chart](semiconductor_quant_ranking.png)
-*(Please ensure you upload the image generated by the python script to your repo)*
-
----
-
-## 🛠️ Tech Stack
-* **Core:** Python 3.10
-* **Data Analysis:** Pandas, NumPy
-* **Visualization:** Seaborn, Matplotlib
-* **Data Source:** iFind Financial Terminal (Exported CSVs)
-
----
+![Allocation Chart](output/portfolio_allocation.png)
 
 ## 🚀 How to Run
-
-1. **Clone the repository**
+1. Install dependencies: `pip install -r requirements.txt`
+2. Add LSEG App Key in `src/fetch_data.py`.
+3. Run the pipeline:
    ```bash
-   git clone [https://github.com/YourUsername/Semiconductor-Quant-Model.git](https://github.com/YourUsername/Semiconductor-Quant-Model.git)
+   python src/fetch_data.py       # Get Data
+   python src/analysis_model.py   # Rank Stocks
+   python src/advanced_portfolio.py # Optimize Portfolio
